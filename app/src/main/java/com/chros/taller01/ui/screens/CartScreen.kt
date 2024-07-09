@@ -4,12 +4,15 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -23,8 +26,10 @@ import com.chros.taller01.Plate
 
 @Composable
 fun CartScreen(
-    cart: List<Plate>
+    cart: MutableList<Plate>
 ) {
+    val totalPrice = cart.sumOf { it.price }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -39,16 +44,36 @@ fun CartScreen(
             ),
             modifier = Modifier.padding(bottom = 16.dp)
         )
+
         LazyColumn {
             items(cart) { plate ->
-                CartRow(plate)
+                CartRow(plate, cart)
             }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
+            text = "Total: $%.2f".format(totalPrice),
+            style = TextStyle(
+                fontWeight = FontWeight.Bold,
+                fontSize = 24.sp,
+                letterSpacing = 0.15.sp
+            ),
+            modifier = Modifier.padding(vertical = 8.dp)
+        )
+
+        Button(onClick = { cart.clear() }) {
+            Text(text = "Clear Cart")
         }
     }
 }
 
 @Composable
-fun CartRow(plate: Plate) {
+fun CartRow(
+    plate: Plate,
+    cart: MutableList<Plate>
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -61,24 +86,30 @@ fun CartRow(plate: Plate) {
             modifier = Modifier.size(64.dp),
             contentScale = ContentScale.Crop
         )
-        Text(
-            text = plate.name,
-            style = TextStyle(
-                fontWeight = FontWeight.Medium,
-                fontSize = 20.sp,
-                letterSpacing = 0.15.sp
-            ),
+        Column(
             modifier = Modifier
                 .weight(1f)
                 .padding(start = 16.dp)
-        )
-        Text(
-            text = "Quantity: 1", // You can adjust this part if you have a quantity field
-            style = TextStyle(
-                fontWeight = FontWeight.Normal,
-                fontSize = 16.sp,
-                letterSpacing = 0.15.sp
+        ) {
+            Text(
+                text = plate.name,
+                style = TextStyle(
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 20.sp,
+                    letterSpacing = 0.15.sp
+                )
             )
-        )
+            Text(
+                text = "Price: $%.2f".format(plate.price),
+                style = TextStyle(
+                    fontWeight = FontWeight.Normal,
+                    fontSize = 16.sp,
+                    letterSpacing = 0.15.sp
+                )
+            )
+        }
+        Button(onClick = { cart.remove(plate) }) {
+            Text(text = "Remove")
+        }
     }
 }
